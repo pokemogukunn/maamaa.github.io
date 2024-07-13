@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScratchプロジェクトをZIPに変換する</title>
+</head>
+<body>
+  <label for="projectUrl">ScratchプロジェクトURL:</label>
+  <input type="text" id="projectUrl">
+  <button onclick="convertToZip()">Convert to ZIP</button>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.7.1/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    async function convertToZip() {
+      const projectUrl = document.getElementById('projectUrl').value.trim();
+      
+      if (!projectUrl) {
+        alert('プロジェクトのURLを入力してください。');
+        return;
+      }
+      
+      try {
+        const projectId = extractProjectId(projectUrl);
+        const sb3Url = `https://projects.scratch.mit.edu/${projectId}`;
+        
+        const response = await axios.get(sb3Url, { responseType: 'arraybuffer' });
+        const sb3Data = response.data;
+        
+        // ファイル名を取得し、拡張子を.zipに変更
+        const fileName = `${projectId}.zip`;
+        
+        // ZIPに変換する
+        const zip = new JSZip();
+        zip.file(`${projectId}.sb3`, sb3Data);
+        
+        zip.generateAsync({type:"blob"})
+          .then(function(content) {
+            // ZIPファイルをダウンロードする
+            const downloadLink = document.createElement('a');
+            downloadLink.href = URL.createObjectURL(content);
+            downloadLink.download = fileName;
+            downloadLink.click();
+          });
+        
+      } catch (error) {
+        console.error('プロジェクトの取得に失敗しました:', error);
+        alert('プロジェクトの取得に失敗しました。URLが正しいか確認してください。');
+      }
+    }
+    
+    function extractProjectId(url) {
+      // URLからプロジェクトIDを抽出するロジックをここに実装する
+      // 例: https://scratch.mit.edu/projects/123456789/ -> 123456789
+      // ScratchのURLの形式に応じて適切に抽出する方法を実装する
+      const regex = /projects\/(\d+)\//;
+      const match = url.match(regex);
+      if (match && match[1]) {
+        return match[1];
+      } else {
+        throw new Error('Invalid Scratch project URL');
+      }
+    }
+  </script>
+</body>
+</html>
