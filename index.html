@@ -54,7 +54,7 @@
       // URLからプロジェクトIDを抽出するロジックをここに実装する
       // 例: https://scratch.mit.edu/projects/123456789/ -> 123456789
       // ScratchのURLの形式に応じて適切に抽出する方法を実装する
-      const regex = /projects\/(\d+)\//;
+      const regex = https://scratch.mit.edu/projects\/(\d+)\//;
       const match = url.match(regex);
       if (match && match[1]) {
         return match[1];
